@@ -3,7 +3,6 @@ if exists('g:horizonbar_autoloaded')
 endif
 let g:horizonbar_autoloaded = 1
 
-
 func! horizonbar#BarWidth()
   let lessLength = winwidth('$') - (len(expand('%:t'))+len(&filetype)+ len(line('$'))*2+31)
   return line('$') > winheight('%') ? lessLength : line('$')*lessLength/winheight('%')

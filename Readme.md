@@ -1,6 +1,8 @@
 # vim-horizonbar
 
-Installation with [Vim-Plug](https://github.com/junegunn/vim-plug)
+![show\_info](https://raw.githubusercontent.com/motephyr/vim-horizonbar/master/docs/example.gif)
+
+### 1. Installation with [Vim-Plug](https://github.com/junegunn/vim-plug)
 1. Add `Plug 'motephyr/vim-horizonbar'` to your vimrc file.
 2. Reload your vimrc or restart.
 3. Run `:PlugInstall`
