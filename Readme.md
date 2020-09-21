@@ -33,8 +33,6 @@ set statusline+=\ %{line('$')}
 set statusline+=\ Lines\                " percentage
 
 autocmd User CocGitStatusChange call horizonbar#GetDiffList()
-nnoremap <expr> <M-ScrollWheelUp> horizonbar#BoostMouseMove('up')
-nnoremap <expr> <M-ScrollWheelDown> horizonbar#BoostMouseMove('down')
 
 ```
 

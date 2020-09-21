@@ -54,15 +54,5 @@ func! s:TransDiffList(barWidth)
   return nlist
 endfun
 
-fun! horizonbar#BoostMouseMove(position)
-  let line = line('$')/winheight('%') 
-  if a:position == 'down'
-    let aline = line('.') + line
-  else
-    let aline = line('.') - line
-  endif
-  return aline.'G'
-endfun
-
 autocmd BufWinEnter,BufWritePost * call horizonbar#GetDiffList()
 
