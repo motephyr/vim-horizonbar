@@ -33,7 +33,7 @@ func! s:GetPosition(front, scroll,  barWidth)
   let n = 1
   while n <= a:barWidth
     if index(s:TransDiffList(a:barWidth), n) >= 0
-      let c .= '|'
+      let c .= '!'
     elseif n >= a:front && n <= a:front+a:scroll 
       let c .= '-'
     else
