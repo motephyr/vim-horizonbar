@@ -63,7 +63,7 @@ func! s:TransDiffList(barWidth)
 endfun
 
 function! s:StatusDiagnostic(barWidth)
-  if exists('g:did_coc_loaded')
+  if exists('g:did_coc_loaded') && !empty(get(b:, 'coc_diagnostic_info', {}))
     let info = CocAction('diagnosticList')
     if type(info) == 3 
       let ilist = []
