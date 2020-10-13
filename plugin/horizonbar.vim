@@ -31,9 +31,17 @@ endfun
 func! s:GetPosition(front, scroll,  barWidth)
   let c = ''
   let n = 1
+
+  let diagnostic = s:StatusDiagnostic(a:barWidth)
   while n <= a:barWidth
     if index(s:TransDiffList(a:barWidth), n) >= 0
       let c .= '!'
+    elseif index(diagnostic[0], n) >= 0
+      let c .= 'ღ'
+    elseif index(diagnostic[1], n) >= 0
+      let c .= '✖'
+    elseif index(diagnostic[2], n) >= 0
+      let c .= '⚠'
     elseif n >= a:front && n <= a:front+a:scroll 
       let c .= '-'
     else
@@ -53,6 +61,32 @@ func! s:TransDiffList(barWidth)
   endif
   return nlist
 endfun
+
+function! s:StatusDiagnostic(barWidth)
+  if exists('g:did_coc_loaded')
+    let info = CocAction('diagnosticList')
+    if type(info) == 3 
+      let ilist = []
+      let elist = []
+      let olist = []
+      for l in info
+        if l.severity == 'Information'
+          let ilist = add(ilist, str2nr(l.lnum)*a:barWidth/line('$'))
+        elseif l.severity == 'Error'
+          let elist = add(elist, str2nr(l.lnum)*a:barWidth/line('$'))    
+        else
+          let olist = add(olist, str2nr(l.lnum)*a:barWidth/line('$'))   
+        endif
+      endfor
+      let b = add([],ilist)
+      let b = add(b,elist)
+      let b = add(b,olist)
+      return [ilist, elist, olist]
+    endif
+  endif
+  return [[], [], []]
+endfunction
+
 
 autocmd BufWinEnter,BufWritePost * call horizonbar#GetDiffList()
 
