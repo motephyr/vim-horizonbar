@@ -15,6 +15,21 @@ func! horizonbar#GetDiffList()
   let b:difflist = systemlist(cmd)
 endfun
 
+func! horizonbar#GetCocDiffList()
+  if exists('g:did_coc_loaded') && !empty(get(b:, 'coc_diagnostic_info', {}))
+    let info = CocAction('diagnosticList')
+    if type(info) == 3 
+      let b:cocdifflist = []
+      for l in info
+        if l.file =~ expand('%')
+          let b:cocdifflist = add(b:cocdifflist, l)
+        endif
+      endfor
+    endif
+  endif
+endfun
+
+
 func! horizonbar#ScrollBarWidth(barWidth)
   if a:barWidth > 3 
     let left = (line('$') - line('w0') >= winheight('%')) ? (line('w0') - 1) *a:barWidth/line('$') : (line('$') - winheight('%'))*a:barWidth/line('$') 
@@ -33,8 +48,9 @@ func! s:GetPosition(front, scroll,  barWidth)
   let n = 1
 
   let diagnostic = s:StatusDiagnostic(a:barWidth)
+  let gitdiff = s:TransDiffList(a:barWidth)
   while n <= a:barWidth
-    if index(s:TransDiffList(a:barWidth), n) >= 0
+    if index(gitdiff, n) >= 0
       let c .= '!'
     elseif index(diagnostic[0], n) >= 0
       let c .= 'ღ'
@@ -63,13 +79,11 @@ func! s:TransDiffList(barWidth)
 endfun
 
 function! s:StatusDiagnostic(barWidth)
-  if exists('g:did_coc_loaded') && !empty(get(b:, 'coc_diagnostic_info', {}))
-    let info = CocAction('diagnosticList')
-    if type(info) == 3 
+  if exists("b:cocdifflist")
       let ilist = []
       let elist = []
       let olist = []
-      for l in info
+      for l in b:cocdifflist
         if l.severity == 'Information'
           let ilist = add(ilist, str2nr(l.lnum)*a:barWidth/line('$'))
         elseif l.severity == 'Error'
@@ -78,15 +92,11 @@ function! s:StatusDiagnostic(barWidth)
           let olist = add(olist, str2nr(l.lnum)*a:barWidth/line('$'))   
         endif
       endfor
-      let b = add([],ilist)
-      let b = add(b,elist)
-      let b = add(b,olist)
       return [ilist, elist, olist]
     endif
-  endif
   return [[], [], []]
 endfunction
 
 
 autocmd BufWinEnter,BufWritePost * call horizonbar#GetDiffList()
-
+autocmd InsertLeave * call horizonbar#GetCocDiffList()
