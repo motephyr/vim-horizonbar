@@ -8,7 +8,6 @@ func! horizonbar#BarWidth()
   return line('$') > winheight('%') ? lessLength : line('$')*lessLength/winheight('%')
 endfun
 
-
 func! horizonbar#GetDiffList()
   let cmd = "git diff --unified=0 ".expand('%')." | sed -n -e 's/^.*+\\([0-9]*\\)\\([ ,]\\).*/\\1/p' | awk 'NF > 0'"
   "sed -n -e 's/^.*+\([0-9]*\)\([ ,]\).*/\1/p' | awk 'NF > 0'
@@ -50,14 +49,14 @@ func! s:GetPosition(front, scroll,  barWidth)
   let diagnostic = s:StatusDiagnostic(a:barWidth)
   let gitdiff = s:TransDiffList(a:barWidth)
   while n <= a:barWidth
-    if index(gitdiff, n) >= 0
-      let c .= '!'
-    elseif index(diagnostic[0], n) >= 0
+    if index(diagnostic[0], n) >= 0
       let c .= 'ღ'
     elseif index(diagnostic[1], n) >= 0
       let c .= '✖'
     elseif index(diagnostic[2], n) >= 0
       let c .= '⚠'
+    elseif index(gitdiff, n) >= 0
+      let c .= '!'
     elseif n >= a:front && n <= a:front+a:scroll 
       let c .= '-'
     else
@@ -69,34 +68,35 @@ func! s:GetPosition(front, scroll,  barWidth)
 endfun
 
 func! s:TransDiffList(barWidth)
-  let nlist = []
   if exists("b:difflist")
+    let nlist = []
     for l in b:difflist
       let nlist = add(nlist, str2nr(l)*a:barWidth/line('$'))
     endfor
+    return nlist
   endif
-  return nlist
+  return []
 endfun
 
 function! s:StatusDiagnostic(barWidth)
   if exists("b:cocdifflist")
-      let ilist = []
-      let elist = []
-      let olist = []
-      for l in b:cocdifflist
-        if l.severity == 'Information'
-          let ilist = add(ilist, str2nr(l.lnum)*a:barWidth/line('$'))
-        elseif l.severity == 'Error'
-          let elist = add(elist, str2nr(l.lnum)*a:barWidth/line('$'))    
-        else
-          let olist = add(olist, str2nr(l.lnum)*a:barWidth/line('$'))   
-        endif
-      endfor
-      return [ilist, elist, olist]
-    endif
-  return [[], [], []]
+    let ilist = []
+    let elist = []
+    let olist = []
+    for l in b:cocdifflist
+      if l.severity == 'Information'
+        let ilist = add(ilist, str2nr(l.lnum)*a:barWidth/line('$'))
+      elseif l.severity == 'Error'
+        let elist = add(elist, str2nr(l.lnum)*a:barWidth/line('$'))    
+      else
+        let olist = add(olist, str2nr(l.lnum)*a:barWidth/line('$'))   
+      endif
+    endfor
+    return [ilist, elist, olist]
+  endif
+  return [[],[],[]]
 endfunction
 
 
 autocmd BufWinEnter,BufWritePost * call horizonbar#GetDiffList()
-autocmd InsertLeave * call horizonbar#GetCocDiffList()
+autocmd BufWinEnter,InsertLeave * call horizonbar#GetCocDiffList()
